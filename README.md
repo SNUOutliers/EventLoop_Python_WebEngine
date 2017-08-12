@@ -1,4 +1,4 @@
-# sandbox-server  
+# lol-prediction-server  
 
-drop-wizard framework를 사용한 서버  
-참고 : dropwizard.io
+http://www.django-rest-framework.org/
+https://www.djangoproject.com/
