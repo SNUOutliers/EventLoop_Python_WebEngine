@@ -1,6 +1,6 @@
 import email
-import pprint
-import StringIO
+# import pprint
+import io
 
 class HTTPParser:
     @staticmethod
@@ -9,12 +9,12 @@ class HTTPParser:
         _, headers = request_string.split('\r\n', 1)
 
         # construct a message from the request string
-        message = email.message_from_file(StringIO.StringIO(headers))
+        message = email.message_from_file(io.StringIO(headers))
 
         # construct a dictionary containing the headers
         headers = dict(message.items())
 
         # pretty-print the dictionary of headers
-        pprint.pprint(headers, width=160)
+        # pprint.pprint(headers, width=160)
 
         return headers

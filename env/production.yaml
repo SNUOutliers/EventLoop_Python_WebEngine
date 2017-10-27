@@ -1,0 +1,4 @@
+# TODO : 아마존 인스턴스 생성 후 수정할 것
+host : localhost
+port : 8080
+buffer_size : 8192
