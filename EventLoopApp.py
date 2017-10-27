@@ -41,7 +41,7 @@ class EventLoopApp:
             print('close connection for client')
 
         SERVER_SOCKET.close()
-        print('EventLoopApp quitted gracefully.')
+        print('EventLoopApp terminated gracefully.')
 
 if __name__ == "__main__":
     env = 'development'
