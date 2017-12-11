@@ -1,20 +1,44 @@
-import email
-# import pprint
 import io
 
 class HTTPParser:
-    @staticmethod
-    def parse(request_string):
-        # pop the first line so we only process headers
-        _, headers = request_string.split('\r\n', 1)
+	
+	def __init__(self):
+		self.method = ""
+		self.request_uri = ""
+		self.protocol = ""
+		self.connection = ""
+		
+	def parse(self, request):
+		request_line = request.split('\r\n')[0]
+		additional_info = request.split('\r\n')[1:]
 
-        # construct a message from the request string
-        message = email.message_from_file(io.StringIO(headers))
+		# 1. parsing request_line 
+		parsed_rl = request_line.split(' ')
 
-        # construct a dictionary containing the headers
-        headers = dict(message.items())
+		if len(parsed_rl) == 3:
+			self.method = parsed_rl[0]
+			self.request_uri = parsed_rl[1]
+			self.protocol = parsed_rl[2]
 
-        # pretty-print the dictionary of headers
-        # pprint.pprint(headers, width=160)
+		# 2. parsing additional information
+		#	general-header, request-header, entity-header
+		#   especially, get 'Connection' info.
+		info_dict = {}
+#		print('Additional info: ' + str(additional_info))
+		for info in additional_info:
+			if ': ' not in info:
+				continue
+			key = info.split(': ')[0]
+			value = info.split(': ')[1]
+			info_dict[key] = value
+		self.connection = info_dict['Connection']
 
-        return headers
+		print('Method: ' + self.method)
+		print('Request-URI: ' + self.request_uri)
+		print('HTTP-Version: ' + self.protocol)
+		print('Connection: ' + self.connection)
+
+		return 0 
+
+	def get_connect_info(self):
+		return self.connection
