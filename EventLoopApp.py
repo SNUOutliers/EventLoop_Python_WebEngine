@@ -5,7 +5,10 @@ from HTTPResponse import HTTPResponse
 import yaml
 import sys
 import signal
-import time
+from time import ctime
+import selectors
+
+sel = selectors.DefaultSelector()
 
 class EventLoopApp:
 
@@ -20,6 +23,43 @@ class EventLoopApp:
 		self.ADDR = (self.HOST, self.PORT)
 		self.SERVER_SOCKET = socket(AF_INET, SOCK_STREAM)
 
+	def accept_client(self, sock, mask):
+		CLIENT_SOCKET, ADDR_INFO = sock.accept()
+		CLIENT_SOCKET.setblocking(False)
+		sel.register(CLIENT_SOCKET, selectors.EVENT_READ, self.read)
+		print('[INFO][%s] A client(%s) is connected.' % (ctime(), ADDR_INFO))
+
+	def read(self, CLIENT_SOCKET, mask):
+		data = CLIENT_SOCKET.recv(self.BUFFER_SIZE)
+		data_size = 0
+		data_size += len(data)
+		decoded_data = data.decode('utf-8')
+
+		if data_size == 0:
+			sel.unregister(CLIENT_SOCKET)
+			CLIENT_SOCKET.close()
+			print('[INFO][%s] Closed connection from client.')
+		elif decoded_data[-2:] != '\r\n':
+			print('Bad Request(too long HTTP header)')
+			print('Close connection from client') 
+			sel.unregister(CLIENT_SOCKET)
+			CLIENT_SOCKET.close()		
+		else:			
+			print('[INFO][%s] Received data from client.' % ctime())	
+			parser = HTTPParser()
+			print('data decoded:' + decoded_data)
+			parser.parse(decoded_data)
+			connection = parser.get_connect_info()			
+			CLIENT_SOCKET.send(HTTPResponse().respond().encode('utf-8'))
+			print('[INFO][%s] Send data to client' % ctime())
+
+			if connection == 'keep-alive':
+				pass
+			elif connection == 'close':				
+				sel.unregister(CLIENT_SOCKET)
+				CLIENT_SOCKET.close()
+				print('[INFO][%s] Closed connection from client.')
+		
 	def run(self):
 
 		self.SERVER_SOCKET.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
@@ -27,41 +67,17 @@ class EventLoopApp:
 		# without waiting for its natural timeout to expire.
 		self.SERVER_SOCKET.bind(self.ADDR)
 		self.SERVER_SOCKET.listen(100)
+		self.SERVER_SOCKET.setblocking(False)
+		sel.register(self.SERVER_SOCKET, selectors.EVENT_READ, self.accept_client)
 		print('Host and Port are successfully binded')
 		print('Server Socket is now listening...')
 
 		while True:
-			CLIENT_SOCKET, ADDR_INFO = self.SERVER_SOCKET.accept()
-			print('Client Socket is connected')
-			print('Address Information: ' + str(ADDR_INFO))
-			CLIENT_SOCKET.send(HTTPResponse().respond().encode('utf-8')) # test
-
-			# 여기서 pause 발생
-			# request를 두 번 날려야 다음으로 이어짐.
-			# 여기서 recv를 바로 하지 않는 이유?
-
-			data = CLIENT_SOCKET.recv(self.BUFFER_SIZE) # 한 번 받고, 
-			data_size = 0
-			data_size += len(data)		
-
-			if len(CLIENT_SOCKET.recv(self.BUFFER_SIZE)) > 0: # 잔여 데이터가 남았다면
-				print('Bad Request(too long HTTP header)')
-				print('Close connection from client') 
-				CLIENT_SOCKET.close() # 연결되어 있는 클라이언트와의 연결을 끊고, 다시 처음으로 
-				continue
-
-			print("The size of data: " + str(data_size))
-			parser = HTTPParser()
-			parser.parse(data.decode('utf-8'))
-			connection = parser.get_connect_info()
-			
-#			print(HTTPParser().parse(data.decode('utf-8')))
-			CLIENT_SOCKET.send(HTTPResponse().respond().encode('utf-8'))
-			CLIENT_SOCKET.close()
-			print('close connection for client')
-		
-		self.SERVER_SOCKET.close()
-		print('EventLoopApp terminated gracefully.')
+			events = sel.select()
+			for key, mask in events:
+				callback = key.data
+				print(callback.__name__)
+				callback(key.fileobj, mask)
 
 
 if __name__ == "__main__":
@@ -79,11 +95,5 @@ if __name__ == "__main__":
 		print('Server terminated gracefully')
 		
 
-#	try:
-#	except (Exception, KeyboardInterrupt) as e:
 
-#	print(e)
-#	app.SERVER_SOCKET.close()		
-#	print('EventLoopApp terminated gracefully.')
 
-# list index out of range
