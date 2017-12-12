@@ -2,11 +2,13 @@
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 from HTTPParser import HTTPParser
 from HTTPResponse import HTTPResponse
-import yaml
-import sys
-import signal
 from time import ctime
+from status import *
 import selectors
+import signal
+import sys
+import yaml
+
 
 sel = selectors.DefaultSelector()
 
@@ -42,6 +44,7 @@ class EventLoopApp:
 		elif decoded_data[-2:] != '\r\n':
 			print('Bad Request(too long HTTP header)')
 			print('Close connection from client') 
+			CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_400_BAD_REQUEST))
 			sel.unregister(CLIENT_SOCKET)
 			CLIENT_SOCKET.close()		
 		else:			
@@ -50,12 +53,13 @@ class EventLoopApp:
 			print('data decoded:' + decoded_data)
 			parser.parse(decoded_data)
 			connection = parser.get_connect_info()			
-			CLIENT_SOCKET.send(HTTPResponse().respond().encode('utf-8'))
+			CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_200_OK))
 			print('[INFO][%s] Send data to client' % ctime())
 
 			if connection == 'keep-alive':
 				pass
-			elif connection == 'close':				
+			elif connection == 'close':
+				# If 'Connection: close', then send the HTTP response back to the client and close the connection.
 				sel.unregister(CLIENT_SOCKET)
 				CLIENT_SOCKET.close()
 				print('[INFO][%s] Closed connection from client.')
