@@ -1,4 +1,5 @@
 import io
+from Event import Event
 
 class HTTPParser:
 	
@@ -9,6 +10,7 @@ class HTTPParser:
 		self.connection = ""
 		
 	def parse(self, request):
+		''' This method turns HTTPRequset into Event and returns it. '''
 		request_line = request.split('\r\n')[0]
 		additional_info = request.split('\r\n')[1:]
 
@@ -33,12 +35,13 @@ class HTTPParser:
 			info_dict[key] = value
 		self.connection = info_dict['Connection']
 
+		# Check whether data is inserted correctly
 		print('Method: ' + self.method)
 		print('Request-URI: ' + self.request_uri)
 		print('HTTP-Version: ' + self.protocol)
 		print('Connection: ' + self.connection)
 
-		return 0 
+		return Event(self.method, self.request_uri) 
 
 	def get_connect_info(self):
 		return self.connection
