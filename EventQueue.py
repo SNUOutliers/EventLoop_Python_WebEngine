@@ -1,27 +1,20 @@
+from queue import Queue
+
 class EventQueue:
 	def __init__(self):
-		self._queue = self.Queue()		
+		self._queue = Queue()
 
 	def enqueue(self, event):
-		self._queue.enqueue(event)
+		print("Event is enqueued.")
+		self._queue.put(event)
 
 	def dequeue(self):
-		if not self._queue.isEmpty():
-			return self._queue.dequeue()
-		else:
-			return None
-		
-	class Queue:
-	# This queue is simply implemented without using lock.
-	#	If an error occurs, should implement lock.
-	#	Can the length of a Queue be a meaningful parameter?
-		def __init__(self):
-			self._list = []
-		def enqueue(self, event):
-			self._list.append(event)
+		print("Event is dequeued.")
+		return self._queue.get(block=True, timeout=None)
 	
-		def isEmpty(self):
-			return len(self._list) == 0
+	def size(self):
+		return self._queue.qsize()
+
+	def task_done(self):
+		self._queue.task_done()
 		
-		def dequeue(self):
-			return self._list.pop(0)
