@@ -4,7 +4,7 @@ from HTTPResponse import HTTPResponse
 import sys
 from status import *
 from selector import sel
-
+import os
 
 class EventLoop:
 
@@ -24,7 +24,6 @@ class EventLoop:
 	def execute(self):
 		event = self.event_queue.dequeue()
 #		self.event_queue.task_done()
-		
 		if event.is_disk_io():
 			self.disk_io_queue.put(event)
 		else:
@@ -51,7 +50,7 @@ class EventLoop:
 
 	def process_disk_io(self, event):
 		try:
-			with open(os.path.dirname(__file__) + '/resources' + self.request_uri, 'rb') as f:
+			with open(os.path.dirname(__file__) + '/resources' + event.request_uri, 'rb') as f:
 				event.response_bytes = f.read()
 		except: 
 			print('File does not exist. Cannot process event')
@@ -65,6 +64,4 @@ class EventLoop:
 
 		event.disk_io = False
 		return event
-
-		
-		
+	
