@@ -40,11 +40,11 @@ class EventLoop:
 			else:
 				self.disk_io_queue.put(event)
 		else:
-			event.CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_200_OK, event))
+			self.send_event(event)
 			EventLoop.close_or_keep_alive(event)
 
 	@staticmethod
-	def close_or_keep_alive(event):		
+	def close_or_keep_alive(event):
 		if event.connection == 'keep-alive':
 			pass
 		else:
