@@ -5,6 +5,7 @@ import sys
 from status import *
 from selector import sel
 import os
+from utils.event_loop_app_exception import EventLoopAppException
 
 class EventLoop:
 
@@ -53,9 +54,7 @@ class EventLoop:
 			with open(os.path.dirname(__file__) + '/resources' + event.request_uri, 'rb') as f:
 				event.response_bytes = f.read()
 		except: 
-			print('File does not exist. Cannot process event')
-#			raise Exception('Event Loop terminated')
-			sys.exit()
+			raise EventLoopAppException(HTTP_404_NOT_FOUND, 'File does not exist. Cannot process event', event)
 
 		if event.request_uri.endswith('.jpeg'):
 			event.content_type = 'image/jpeg'

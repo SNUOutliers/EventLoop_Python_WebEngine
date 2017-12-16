@@ -43,13 +43,9 @@ class HTTPParser:
 		print('HTTP-Version: ' + self.protocol)
 		print('Connection: ' + self.connection)
 
-		# Check whether requested file exists.
-		all_file_names = glob.glob('resources/*')
-		for file_name in all_file_names:
-			if file_name.endswith(self.request_uri):
-				return Event(self.method, self.request_uri, disk_io=True)
-	
-		raise Exception('Requested file does not exists.')
+		# Check whether requested uri needs disk_io or not.
+		return Event(self.method, self.request_uri, disk_io=(self.request_uri != '/'))
 
 	def get_connect_info(self):
 		return self.connection
+
