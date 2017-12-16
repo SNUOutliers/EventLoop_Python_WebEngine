@@ -37,20 +37,32 @@ class EventLoop:
 			if cached_response_bytes != -1:
 				event.response_bytes = cached_response_bytes
 				event.disk_io = False
-				event.CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_200_OK, event))
+				self.event_queue.enqueue(event)
 				# event의 연결 Type에 따라 소켓 클라이언트와의 연결을 끊을지 말지 결정해야 함.
 				# 일단은 임시로
-				sel.unregister(event.CLIENT_SOCKET)
-				event.CLIENT_SOCKET.close()
+				#sel.unregister(event.CLIENT_SOCKET)
+				#event.CLIENT_SOCKET.close()
 			else:
 				self.disk_io_queue.put(event)
 		else:
-			event.CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_200_OK, event))
+			print("Dequeued event does not need disk_io. Start send event.")
+			self.send_event(event)
 			sel.unregister(event.CLIENT_SOCKET)
 			event.CLIENT_SOCKET.close()
 			# Keep-Alive 처리
 			print("client connection closed.")			
 			# do something
+
+	def send_event(self, event):
+		print("Event sending started!")
+		bytes_to_send = HTTPResponse.respond(HTTP_200_OK, event)
+		event.CLIENT_SOCKET.setblocking(True)
+		total_sent = 0
+		while total_sent < len(bytes_to_send):
+			sent = event.CLIENT_SOCKET.send(bytes_to_send[total_sent:total_sent + 1024*8*8])
+			total_sent = total_sent + sent
+			print("%d / %d sent!"%(total_sent, len(bytes_to_send)))
+		print("Event Sent!")
 
 	def read(self):
 		while True:
@@ -64,6 +76,7 @@ class EventLoop:
 		self.event_queue.enqueue(event)
 
 	def process_disk_io(self, event):
+		print("Read file from disk.")
 		try:
 			with open(os.path.dirname(__file__) + '/resources' + event.request_uri, 'rb') as f:
 				event.response_bytes = f.read()
@@ -73,4 +86,5 @@ class EventLoop:
 			raise EventLoopAppException(HTTP_404_NOT_FOUND, 'File does not exist. Cannot process event', event)
 
 		event.disk_io = False
+		print("Done reading file from disk.")
 		return event

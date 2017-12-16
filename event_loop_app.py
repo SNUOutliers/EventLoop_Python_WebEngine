@@ -38,7 +38,6 @@ class EventLoopApp:
 		print('[INFO][%s] A client(%s) is connected.' % (ctime(), ADDR_INFO))
 
 	def run(self, CLIENT_SOCKET, mask):
-		print ("run")
 		data = CLIENT_SOCKET.recv(self.BUFFER_SIZE)
 		data_size = 0
 		data_size += len(data)
