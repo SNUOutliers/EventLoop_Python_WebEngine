@@ -1,12 +1,13 @@
 class Event:
 	
-	def __init__(self, method, request_uri, disk_io=False):
+	def __init__(self, method, request_uri, disk_io=False, connection='keep-alive'):
 		self.method = method
 		self.request_uri = request_uri
 		self.disk_io = disk_io
 		self.CLIENT_SOCKET = None
 		self.response_bytes = None
 		self.set_content_type()
+		self.connection = None
 
 	def set_content_type(self):
 		# set content_type by uri

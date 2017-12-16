@@ -44,7 +44,7 @@ class HTTPParser:
 		print('Connection: ' + self.connection)
 
 		# Check whether requested uri needs disk_io or not.
-		return Event(self.method, self.request_uri, disk_io=(self.request_uri != '/'))
+		return Event(self.method, self.request_uri, disk_io=(self.request_uri != '/'), connection = self.connection)
 
 	def get_connect_info(self):
 		return self.connection

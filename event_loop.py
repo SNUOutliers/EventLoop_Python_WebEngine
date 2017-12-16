@@ -29,7 +29,6 @@ class EventLoop:
 
 	def execute(self):
 		event = self.event_queue.dequeue()
-#		self.event_queue.task_done()
 		if event.is_disk_io():
 			# Check whether the requested data is cached.
 			cached_response_bytes = self.lru_cache.get(event.request_uri)
@@ -37,20 +36,22 @@ class EventLoop:
 			if cached_response_bytes != -1:
 				event.response_bytes = cached_response_bytes
 				event.disk_io = False
-				event.CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_200_OK, event))
-				# event의 연결 Type에 따라 소켓 클라이언트와의 연결을 끊을지 말지 결정해야 함.
-				# 일단은 임시로
-				sel.unregister(event.CLIENT_SOCKET)
-				event.CLIENT_SOCKET.close()
+				event.CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_200_OK, event))				
+				EventLoop.close_or_keep_alive(event)
 			else:
 				self.disk_io_queue.put(event)
 		else:
 			event.CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_200_OK, event))
+			EventLoop.close_or_keep_alive(event)
+
+	@staticmethod
+	def close_or_keep_alive(event):		
+		if event.connection == 'keep-alive':
+			pass
+		else:
 			sel.unregister(event.CLIENT_SOCKET)
 			event.CLIENT_SOCKET.close()
-			# Keep-Alive 처리
-			print("client connection closed.")			
-			# do something
+			print("Connection from client is closed.")
 
 	def read(self):
 		while True:
