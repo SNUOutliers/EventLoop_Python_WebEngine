@@ -41,7 +41,7 @@ class EventLoop:
 				# event의 연결 Type에 따라 소켓 클라이언트와의 연결을 끊을지 말지 결정해야 함.
 				# 일단은 임시로
 				sel.unregister(event.CLIENT_SOCKET)
-				event.CLIENT_SOCKET.close()	
+				event.CLIENT_SOCKET.close()
 			else:
 				self.disk_io_queue.put(event)
 		else:
@@ -72,11 +72,5 @@ class EventLoop:
 		except: 
 			raise EventLoopAppException(HTTP_404_NOT_FOUND, 'File does not exist. Cannot process event', event)
 
-		if event.request_uri.endswith('.jpeg'):
-			event.content_type = 'image/jpeg'
-		elif event.request_uri.endswith('.html'):
-			event.content_type = 'text/html'
-
 		event.disk_io = False
 		return event
-	
