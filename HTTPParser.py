@@ -1,5 +1,7 @@
 import io
+import glob
 from Event import Event
+
 
 class HTTPParser:
 	
@@ -41,7 +43,13 @@ class HTTPParser:
 		print('HTTP-Version: ' + self.protocol)
 		print('Connection: ' + self.connection)
 
-		return Event(self.method, self.request_uri) 
+		# Check whether requested file exists.
+		all_file_names = glob.glob('resources/*')
+		for file_name in all_file_names:
+			if file_name.endswith(self.request_uri):
+				return Event(self.method, self.request_uri, disk_io=True)
+	
+		raise Exception('Requested file does not exists.')
 
 	def get_connect_info(self):
 		return self.connection
