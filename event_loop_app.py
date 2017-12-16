@@ -1,11 +1,11 @@
 """This module is test module."""
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
-from HTTPParser import HTTPParser
-from HTTPResponse import HTTPResponse
+from http_parser import HTTPParser
+from http_response import HTTPResponse
 from time import ctime
 from status import *
-from EventQueue import EventQueue
-from EventLoop import EventLoop
+from event_queue import EventQueue
+from event_loop import EventLoop
 from selector import sel
 import selectors
 import signal

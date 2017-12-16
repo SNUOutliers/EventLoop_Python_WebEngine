@@ -1,6 +1,6 @@
 from threading import Thread
 from queue import Queue
-from HTTPResponse import HTTPResponse
+from http_response import HTTPResponse
 import sys
 from status import *
 from selector import sel
