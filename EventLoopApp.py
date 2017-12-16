@@ -12,8 +12,7 @@ import signal
 import sys
 import yaml
 from time import sleep
-from multiprocessing import Process
-
+from threading import Thread
 
 #sel = selectors.DefaultSelector()
 client_info = {}
@@ -39,6 +38,7 @@ class EventLoopApp:
 		print('[INFO][%s] A client(%s) is connected.' % (ctime(), ADDR_INFO))
 
 	def run(self, CLIENT_SOCKET, mask):
+		print ("run")
 		data = CLIENT_SOCKET.recv(self.BUFFER_SIZE)
 		data_size = 0
 		data_size += len(data)
@@ -111,12 +111,12 @@ if __name__ == "__main__":
 	event_loop = EventLoop(event_queue)
 
 	try:
-#		app.start()
-		conn_process = Process(name='conn_process', target=app.start)
-		event_loop_process = Process(name='event_loop_process', target=event_loop.start)
+		conn_process = Thread(name='conn_process', target=app.start)
+		event_loop_process = Thread(name='event_loop_process', target=event_loop.start)
 		conn_process.start()
 		event_loop_process.start()
 	except KeyboardInterrupt:
 		app.SERVER_SOCKET.close()
 		print('You pressed CTRL + C')
 		print('Server terminated gracefully')
+
