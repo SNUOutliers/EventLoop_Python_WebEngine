@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 test/
 .DS_Store
+resources/
