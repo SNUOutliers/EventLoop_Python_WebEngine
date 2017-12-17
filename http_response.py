@@ -38,7 +38,7 @@ class HTTPResponse():
 		message = event.response_bytes
 		status_line = HTTPResponse.HTTP_VERSION + ' ' + status_code + ' ' + response_phrase + '\r\n' 
 		
-		entity_header = "Content-Length: " + str(len(message)) + "\n" + "Content-Type: " + event.content_type
+		entity_header = "Content-Length: " + str(len(message)) + "\n" + "Content-Type: " + event.content_type + "\n" + "Accept-Ranges: bytes" + "\n" + "Content-Range: bytes 0-" + str(len(message)) + "/" + str(len(message))
 		return (status_line + entity_header + '\r\n' + '\r\n').encode('utf-8') + message
 		# 결국엔 encode 과정이 필요하게 됨!
 		# 파일도 로컬에서 읽은 다음, encode하면 되지 않을까?!
