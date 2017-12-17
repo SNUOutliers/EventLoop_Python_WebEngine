@@ -7,7 +7,7 @@ class Event:
 		self.CLIENT_SOCKET = None
 		self.response_bytes = None
 		self.set_content_type()
-		self.connection = None
+		self.connection = connection
 
 	def set_content_type(self):
 		# set content_type by uri
@@ -17,6 +17,11 @@ class Event:
 			self.content_type = 'text/html'
 		elif self.request_uri.endswith('.mp4'):
 			self.content_type = 'video/mp4'
+		elif self.request_uri.endswith('.zip'):
+			self.content_type = 'application/zip'
+		elif self.request_uri.endswith('.ico'):
+			self.content_type = 'image/x-icon'
+
 
 	def is_disk_io(self):
 		return self.disk_io

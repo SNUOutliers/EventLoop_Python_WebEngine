@@ -45,7 +45,9 @@ class EventLoop:
 
 	@staticmethod
 	def close_or_keep_alive(event):
+		print("Event_connection_info:" + str(event.connection))
 		if event.connection == 'keep-alive':
+			print("Event Connnection is keep alive!")
 			pass
 		else:
 			sel.unregister(event.CLIENT_SOCKET)
@@ -56,12 +58,17 @@ class EventLoop:
 		print("Event sending started!")
 		bytes_to_send = HTTPResponse.respond(HTTP_200_OK, event)
 		event.CLIENT_SOCKET.setblocking(True)
-		total_sent = 0
-		while total_sent < len(bytes_to_send):
-			sent = event.CLIENT_SOCKET.send(bytes_to_send[total_sent:total_sent + 1024*8*8])
-			total_sent = total_sent + sent
-			print("%d / %d sent!"%(total_sent, len(bytes_to_send)))
+		event.CLIENT_SOCKET.sendall(bytes_to_send)
 		print("Event Sent!")
+#		event.CLIENT_SOCKET.setblocking(False)
+
+#		event.CLIENT_SOCKET.setblocking(True)
+#		total_sent = 0
+#		while total_sent < len(bytes_to_send):
+#			sent = event.CLIENT_SOCKET.send(bytes_to_send[total_sent:total_sent + 1024*8*8])
+#			total_sent = total_sent + sent
+#			print("%d / %d sent!"%(total_sent, len(bytes_to_send)))
+#		print("Event Sent!")
 
 	def read(self):
 		while True:

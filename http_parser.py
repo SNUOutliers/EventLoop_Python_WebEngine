@@ -13,6 +13,7 @@ class HTTPParser:
 		
 	def parse(self, request):
 		''' This method turns HTTPRequset into Event and returns it. '''
+		# [CAUTION] if the request does not end with '\r\n', then parse ends with error.
 		request_line = request.split('\r\n')[0]
 		additional_info = request.split('\r\n')[1:]
 
@@ -28,7 +29,7 @@ class HTTPParser:
 		#	general-header, request-header, entity-header
 		#   especially, get 'Connection' info.
 		info_dict = {}
-#		print('Additional info: ' + str(additional_info))
+		print('Additional info: ' + str(additional_info))		
 		for info in additional_info:
 			if ': ' not in info:
 				continue
@@ -36,6 +37,8 @@ class HTTPParser:
 			value = info.split(': ')[1]
 			info_dict[key] = value
 		self.connection = info_dict['Connection']
+#		self.accept_ranges = info_dict['Accept-Ranges']
+#		print('accept_ranges:' + self.accept_ranges)
 
 		# Check whether data is inserted correctly
 		print('Method: ' + self.method)

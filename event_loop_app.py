@@ -1,11 +1,12 @@
 """This module is test module."""
-from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
+from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR, SO_KEEPALIVE
 from http_parser import HTTPParser
 from http_response import HTTPResponse
 from time import ctime
 from status import *
 from event_queue import EventQueue
 from event_loop import EventLoop
+from event import Event
 from selector import sel
 import selectors
 import signal
@@ -13,6 +14,8 @@ import sys
 import yaml
 from time import sleep
 from threading import Thread
+from utils.event_loop_app_exception import EventLoopAppException
+
 
 #sel = selectors.DefaultSelector()
 client_info = {}
@@ -34,11 +37,14 @@ class EventLoopApp:
 	def accept_client(self, sock, mask):
 		CLIENT_SOCKET, ADDR_INFO = sock.accept()
 		CLIENT_SOCKET.setblocking(False)
+#		CLIENT_SOCKET.setsockopt(SOL_SOCKET, SO_KEEPALIVE, 1)
 		sel.register(CLIENT_SOCKET, selectors.EVENT_READ, self.run)
 		print('[INFO][%s] A client(%s) is connected.' % (ctime(), ADDR_INFO))
 
 	def run(self, CLIENT_SOCKET, mask):
 		data = CLIENT_SOCKET.recv(self.BUFFER_SIZE)
+		# Receive data from the socket. The return value is a bytes object representing the data received.
+		# The maximum amount of data to be received at once is specified by bufsize. 
 		data_size = 0
 		data_size += len(data)
 		decoded_data = data.decode('utf-8')
@@ -46,36 +52,30 @@ class EventLoopApp:
 		if data_size == 0:
 			sel.unregister(CLIENT_SOCKET)
 			CLIENT_SOCKET.close()
-			print('[INFO][%s] Closed connection from client.')
-		elif decoded_data[-2:] != '\r\n':
-			print('Bad Request(too long HTTP header)')
-			print('Close connection from client') 
-			CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_400_BAD_REQUEST))
-			sel.unregister(CLIENT_SOCKET)
-			CLIENT_SOCKET.close()		
-		else:			
-			print('[INFO][%s] Received data from client.' % ctime())
-			parser = HTTPParser()
-			event = parser.parse(decoded_data) # Request turned into event.			
-			event.CLIENT_SOCKET = CLIENT_SOCKET
-			# event 던져서 Queue에 넣고, return해야 함.
+			print('Connection from client is disconnected.')		
+		else:
+			if decoded_data[-2:] != '\r\n':
+				print('Bad Request(too long HTTP header)')
+				print('Close connection from client') 
+				error_event = Event()
+				error_event.CLIENT_SOCKET = CLIENT_SOCKET
+				raise EventLoopAppException(HTTP_400_BAD_REQUEST, 'Bad Request(too long HTTP header)', error_event)				
+			else:
+				print('[INFO][%s] Received data from client.' % ctime())
+				parser = HTTPParser()
+				event = parser.parse(decoded_data) # Request turned into event.			
+				event.CLIENT_SOCKET = CLIENT_SOCKET
+				self.event_queue.enqueue(event)			
 
-			# If the type of an event is disk I/O, throw the events to threads.
-			# [TO BE IMPLEMENTED]			
-			self.event_queue.enqueue(event)			
-	
-#			connection = parser.get_connect_info()			
-#			CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_200_OK))
-#			print('[INFO][%s] Send data to client' % ctime())
 
-#			if connection == 'keep-alive':
-#				sleep(5)
-#			elif connection == 'close':
-#				# If 'Connection: close', then send the HTTP response back to the client and close the connection.
-#				sel.unregister(CLIENT_SOCKET)
-#				CLIENT_SOCKET.close()
-#				print('[INFO][%s] Closed connection from client.')
-			
+#		elif decoded_data[-2:] != '\r\n':
+#			print('Bad Request(too long HTTP header)')
+#			print('Close connection from client') 
+#			CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_400_BAD_REQUEST))
+#			sel.unregister(CLIENT_SOCKET)
+#			CLIENT_SOCKET.close()
+
+				
 	def start(self):
 
 		self.SERVER_SOCKET.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
@@ -85,13 +85,12 @@ class EventLoopApp:
 		self.SERVER_SOCKET.listen(100)
 		self.SERVER_SOCKET.setblocking(False)
 		sel.register(self.SERVER_SOCKET, selectors.EVENT_READ, self.accept_client)
-#		sel.register(self.SERVER_SOCKET, selectors.EVENT_READ, self.hello)
 		print('Host and Port are successfully binded')
 		print('Server Socket is now listening...')
 
 		while True:
-			events = sel.select()
-			print("Current ready sockets number:" + str(len(events)))
+			events = sel.select() # standby here
+			print("Current number of sockets that have things to read:" + str(len(events)))
 			for key, mask in events:
 				callback = key.data
 #				print(callback.__name__)
