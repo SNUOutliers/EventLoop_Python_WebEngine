@@ -5,7 +5,7 @@ class Event:
 		self.request_uri = request_uri
 		self.disk_io = disk_io
 		self.CLIENT_SOCKET = None
-		self.response_bytes = None
+		self.response_bytes = b'' # changed from None to b''
 		self.set_content_type()
 		self.connection = connection
 
@@ -21,7 +21,8 @@ class Event:
 			self.content_type = 'application/zip'
 		elif self.request_uri.endswith('.ico'):
 			self.content_type = 'image/x-icon'
-
+		else:
+			self.content_type = 'text/plain'
 
 	def is_disk_io(self):
 		return self.disk_io

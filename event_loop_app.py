@@ -17,7 +17,7 @@ from threading import Thread
 from utils.event_loop_app_exception import EventLoopAppException
 
 
-#sel = selectors.DefaultSelector()
+
 client_info = {}
 
 class EventLoopApp:
