@@ -36,7 +36,8 @@ class HTTPParser:
 			key = info.split(': ')[0]
 			value = info.split(': ')[1]
 			info_dict[key] = value
-		self.connection = info_dict['Connection']
+		# TODO(clsan) : If connection is None, what should we do?
+		self.connection = info_dict.get('Connection')
 #		self.accept_ranges = info_dict['Accept-Ranges']
 #		print('accept_ranges:' + self.accept_ranges)
 
