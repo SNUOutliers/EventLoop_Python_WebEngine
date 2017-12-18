@@ -16,8 +16,6 @@ from time import sleep
 from threading import Thread
 from utils.event_loop_app_exception import EventLoopAppException
 
-
-
 client_info = {}
 
 class EventLoopApp:
@@ -66,15 +64,6 @@ class EventLoopApp:
 				event = parser.parse(decoded_data) # Request turned into event.			
 				event.CLIENT_SOCKET = CLIENT_SOCKET
 				self.event_queue.enqueue(event)			
-
-
-#		elif decoded_data[-2:] != '\r\n':
-#			print('Bad Request(too long HTTP header)')
-#			print('Close connection from client') 
-#			CLIENT_SOCKET.send(HTTPResponse.respond(HTTP_400_BAD_REQUEST))
-#			sel.unregister(CLIENT_SOCKET)
-#			CLIENT_SOCKET.close()
-
 				
 	def start(self):
 
@@ -89,12 +78,15 @@ class EventLoopApp:
 		print('Server Socket is now listening...')
 
 		while True:
-			events = sel.select() # standby here
-			print("Current number of sockets that have things to read:" + str(len(events)))
-			for key, mask in events:
-				callback = key.data
-#				print(callback.__name__)
-				callback(key.fileobj, mask)
+			try:
+				events = sel.select() # standby here
+				print("Current number of sockets that have things to read:" + str(len(events)))
+				for key, mask in events:
+					callback = key.data
+	#				print(callback.__name__)
+					callback(key.fileobj, mask)
+			except EventLoopAppException:
+				pass
 
 
 if __name__ == "__main__":
@@ -117,4 +109,4 @@ if __name__ == "__main__":
 		app.SERVER_SOCKET.close()
 		print('You pressed CTRL + C')
 		print('Server terminated gracefully')
-
+	
