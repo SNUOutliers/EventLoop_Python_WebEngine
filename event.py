@@ -1,11 +1,11 @@
 class Event:
 	
-	def __init__(self, method, request_uri, disk_io=False, connection='keep-alive'):
+	def __init__(self, method='GET', request_uri='/', disk_io=False, connection='keep-alive'):
 		self.method = method
 		self.request_uri = request_uri
 		self.disk_io = disk_io
 		self.CLIENT_SOCKET = None
-		self.response_bytes = b'' # changed from None to b''
+		self.response_bytes = b'Welcome to group G\'s Event Loop Web Engine' # changed from None to b''
 		self.set_content_type()
 		self.connection = connection
 
@@ -26,3 +26,4 @@ class Event:
 
 	def is_disk_io(self):
 		return self.disk_io
+
