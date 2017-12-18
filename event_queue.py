@@ -5,11 +5,11 @@ class EventQueue:
 		self._queue = Queue()
 
 	def enqueue(self, event):
-		print("Event is enqueued.")
+		print("Event is enqueued. Current event queue length: " + str(self.size()))
 		self._queue.put(event)
 
 	def dequeue(self):
-		print("Event is dequeued.")
+		print("Event is dequeued. Current event queue length: " + str(self.size()))
 		return self._queue.get(block=True, timeout=None)
 	
 	def size(self):
