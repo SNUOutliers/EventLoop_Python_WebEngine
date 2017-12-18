@@ -10,20 +10,17 @@ class FIFOCache:
 		self.cache = collections.OrderedDict()
 
 	def get(self, key):
-		try:			
-			value = self.cache.pop(key)
-			self.cache[key] = value
-			print("FIFO Cache Hit!!!")
-			return value
-		except KeyError:
+		value = self.cache.get(key)
+		if value is None:
 			print("FIFO Cache Miss!!!")
 			return -1
+		
+		print("FIFO Cache Hit!!!")
+		return value
 
 	def set(self, key, value):
-		try:
-			self.cache.pop(key)
-		except KeyError:
+		if self.cache.get(key) is None:
 			if len(self.cache) >= self.capacity:
 				self.cache.popitem(last=False)
-		self.cache[key] = value
+			self.cache[key] = value
 
