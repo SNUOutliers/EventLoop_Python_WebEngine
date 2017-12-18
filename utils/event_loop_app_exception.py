@@ -1,6 +1,6 @@
 """Custom exception handler."""
+from http.http_response import HTTPResponse
 from selector import sel
-from http_response import HTTPResponse
 
 
 class EventLoopAppException(Exception):

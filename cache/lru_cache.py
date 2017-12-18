@@ -13,10 +13,10 @@ class LRUCache:
 		try:			
 			value = self.cache.pop(key)
 			self.cache[key] = value
-			print("Cache Hit!!!")
+			print("LRU Cache Hit!!!")
 			return value
 		except KeyError:
-			print("Cache Miss!!")
+			print("LRU Cache Miss!!!")
 			return -1
 
 	def set(self, key, value):

@@ -1,19 +1,18 @@
 """This module is test module."""
-from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR, SO_KEEPALIVE
-from http_parser import HTTPParser
-from http_response import HTTPResponse
-from time import ctime
-from status import *
-from event_queue import EventQueue
-from event_loop import EventLoop
-from event import Event
-from selector import sel
 import selectors
-import signal
 import sys
-import yaml
-from time import sleep
+from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 from threading import Thread
+from time import ctime
+
+import yaml
+from http.status import *
+
+from event import Event
+from event_loop import EventLoop
+from event_queue import EventQueue
+from http.http_parser import HTTPParser
+from selector import sel
 from utils.event_loop_app_exception import EventLoopAppException
 
 client_info = {}

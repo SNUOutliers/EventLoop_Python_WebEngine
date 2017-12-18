@@ -1,5 +1,3 @@
-import io
-import glob
 from event import Event
 
 
@@ -52,4 +50,3 @@ class HTTPParser:
 
 	def get_connect_info(self):
 		return self.connection
-

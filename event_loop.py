@@ -1,12 +1,13 @@
-from threading import Thread
-from queue import Queue
-from http_response import HTTPResponse
-import sys
-from status import *
-from selector import sel
 import os
+from queue import Queue
+from threading import Thread
+
+from http.status import *
+
+from cache.lru_cache import LRUCache
+from http.http_response import HTTPResponse
+from selector import sel
 from utils.event_loop_app_exception import EventLoopAppException
-from cache import LRUCache
 
 CACHE_CAPACITY = 50
 NUM_OF_THREADS = 4

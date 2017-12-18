@@ -1,4 +1,4 @@
-from status import *
+from http.status import *
 
 ## HTTPReponse type ###
 # HTTP_200_OK = 200
@@ -13,11 +13,11 @@ class HTTPResponse():
 	@staticmethod
 	def respond(response_code, event):
 		valid_responses = [HTTP_200_OK, HTTP_302_NOT_MODIFIED, HTTP_400_BAD_REQUEST, 
-											 HTTP_404_NOT_FOUND, HTTP_500_SERVICE_UNAVAILABLE]
+						   HTTP_404_NOT_FOUND, HTTP_500_SERVICE_UNAVAILABLE]
 		if response_code not in valid_responses:
 			print('Invalid Response Type')
 			return 0
-					
+
 		if response_code == HTTP_200_OK:
 			return HTTPResponse.get_response_type('200', 'OK', event)
 		elif response_code == HTTP_302_NOT_MODIFIED:

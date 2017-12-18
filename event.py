@@ -26,4 +26,3 @@ class Event:
 
 	def is_disk_io(self):
 		return self.disk_io
-

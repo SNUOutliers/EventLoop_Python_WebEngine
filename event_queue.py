@@ -17,4 +17,3 @@ class EventQueue:
 
 	def task_done(self):
 		self._queue.task_done()
-		
