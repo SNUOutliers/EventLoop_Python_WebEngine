@@ -4,20 +4,19 @@ from threading import Thread
 
 from http.status import *
 
-from cache.lru_cache import LRUCache
+from cache.cache import *
 from http.http_response import HTTPResponse
 from selector import sel
 from utils.event_loop_app_exception import EventLoopAppException
 
-CACHE_CAPACITY = 50
 NUM_OF_THREADS = 4
 
 class EventLoop:
 
-	def __init__(self, event_queue):
+	def __init__(self, event_queue, cache_policy=LRU):
 		self.event_queue = event_queue
 		self.disk_io_queue = Queue()
-		self.lru_cache = LRUCache(CACHE_CAPACITY)
+		self.cache = Cache.build(cache_policy)
 
 		for i in range(NUM_OF_THREADS):
 			t = Thread(target=self.read)
@@ -35,7 +34,7 @@ class EventLoop:
 		event = self.event_queue.dequeue()
 		if event.is_disk_io():
 			# Check whether the requested data is cached.
-			cached_response_bytes = self.lru_cache.get(event.request_uri)
+			cached_response_bytes = self.cache.get(event.request_uri)
 
 			if cached_response_bytes != -1:
 				event.response_bytes = cached_response_bytes
@@ -82,7 +81,7 @@ class EventLoop:
 			with open(os.path.dirname(__file__) + '/resources' + event.request_uri, 'rb') as f:
 				event.response_bytes = f.read()
 				# Newly read file is inserted into cache.
-				self.lru_cache.set(event.request_uri, event.response_bytes)
+				self.cache.set(event.request_uri, event.response_bytes)
 		except: 
 			raise EventLoopAppException(HTTP_404_NOT_FOUND, 'File does not exist. Cannot process event', event)
 

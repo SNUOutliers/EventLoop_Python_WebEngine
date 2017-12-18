@@ -11,6 +11,7 @@ from http.status import *
 from event import Event
 from event_loop import EventLoop
 from event_queue import EventQueue
+from cache.cache import LRU 
 from http.http_parser import HTTPParser
 from selector import sel
 from utils.event_loop_app_exception import EventLoopAppException
@@ -90,14 +91,16 @@ class EventLoopApp:
 
 if __name__ == "__main__":
 	env = 'development'
+	cache_policy = LRU
 	if len(sys.argv) > 1:
 		env = sys.argv[1]
-	print('Current mode: ' + env)
-
+		if len(sys.argv) == 3:
+			cache_policy = sys.argv[2]
+	print('Event loop app is starting in ' + env + ' environment with ' + cache_policy + ' cache policy.')
 
 	event_queue = EventQueue()
 	app = EventLoopApp(env, event_queue)
-	event_loop = EventLoop(event_queue)
+	event_loop = EventLoop(event_queue, cache_policy)
 
 	try:
 		conn_process = Thread(name='conn_process', target=app.start)
