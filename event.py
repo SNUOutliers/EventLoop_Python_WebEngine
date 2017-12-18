@@ -22,7 +22,7 @@ class Event:
 		elif self.request_uri.endswith('.ico'):
 			self.content_type = 'image/x-icon'
 		else:
-			self.content_type = 'text/plain'
+			self.content_type = '*/*'
 
 	def is_disk_io(self):
 		return self.disk_io
