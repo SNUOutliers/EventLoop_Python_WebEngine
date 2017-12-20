@@ -40,7 +40,9 @@ class EventLoopApp:
 		print('[INFO][%s] A client(%s) is connected.' % (ctime(), ADDR_INFO))
 
 	def run(self, CLIENT_SOCKET, mask):
-		data = CLIENT_SOCKET.recv(self.BUFFER_SIZE)
+#		data = CLIENT_SOCKET.recv(self.BUFFER_SIZE)
+		data = CLIENT_SOCKET.recv(512)
+
 		# Receive data from the socket. The return value is a bytes object representing the data received.
 		# The maximum amount of data to be received at once is specified by bufsize. 
 		data_size = 0

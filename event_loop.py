@@ -39,7 +39,8 @@ class EventLoop:
 			if cached_response_bytes != -1:
 				event.response_bytes = cached_response_bytes
 				event.disk_io = False
-				self.event_queue.enqueue(event)
+				self.send_event(event)
+				EventLoop.close_or_keep_alive(event)
 			else:
 				self.disk_io_queue.put(event)
 		else:
