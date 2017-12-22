@@ -27,7 +27,7 @@ class HTTPParser:
 		#	general-header, request-header, entity-header
 		#   especially, get 'Connection' info.
 		info_dict = {}
-		print('Additional info: ' + str(additional_info))		
+#		print('Additional info: ' + str(additional_info))		
 		for info in additional_info:
 			if ': ' not in info:
 				continue
@@ -40,10 +40,10 @@ class HTTPParser:
 #		print('accept_ranges:' + self.accept_ranges)
 
 		# Check whether data is inserted correctly
-		print('Method: ' + self.method)
-		print('Request-URI: ' + self.request_uri)
-		print('HTTP-Version: ' + self.protocol)
-		print('Connection: ' + self.connection)
+		#print('Method: ' + self.method)
+		#print('Request-URI: ' + self.request_uri)
+		#print('HTTP-Version: ' + self.protocol)
+		#print('Connection: ' + self.connection)
 
 		# Check whether requested uri needs disk_io or not.
 		return Event(self.method, self.request_uri, disk_io=(self.request_uri != '/'), connection = self.connection)

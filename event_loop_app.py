@@ -37,11 +37,10 @@ class EventLoopApp:
 		CLIENT_SOCKET.setblocking(False)
 #		CLIENT_SOCKET.setsockopt(SOL_SOCKET, SO_KEEPALIVE, 1)
 		sel.register(CLIENT_SOCKET, selectors.EVENT_READ, self.run)
-		print('[INFO][%s] A client(%s) is connected.' % (ctime(), ADDR_INFO))
+		#print('[INFO][%s] A client(%s) is connected.' % (ctime(), ADDR_INFO))
 
 	def run(self, CLIENT_SOCKET, mask):
-#		data = CLIENT_SOCKET.recv(self.BUFFER_SIZE)
-		data = CLIENT_SOCKET.recv(512)
+		data = CLIENT_SOCKET.recv(self.BUFFER_SIZE)
 
 		# Receive data from the socket. The return value is a bytes object representing the data received.
 		# The maximum amount of data to be received at once is specified by bufsize. 
@@ -52,7 +51,7 @@ class EventLoopApp:
 		if data_size == 0:
 			sel.unregister(CLIENT_SOCKET)
 			CLIENT_SOCKET.close()
-			print('Connection from client is disconnected.')		
+	#		print('Connection from client is disconnected.')		
 		else:
 			if decoded_data[-2:] != '\r\n':
 				print('Bad Request(too long HTTP header)')
@@ -61,7 +60,7 @@ class EventLoopApp:
 				error_event.CLIENT_SOCKET = CLIENT_SOCKET
 				raise EventLoopAppException(HTTP_400_BAD_REQUEST, 'Bad Request(too long HTTP header)', error_event)				
 			else:
-				print('[INFO][%s] Received data from client.' % ctime())
+#				print('[INFO][%s] Received data from client.' % ctime())
 				parser = HTTPParser()
 				event = parser.parse(decoded_data) # Request turned into event.			
 				event.CLIENT_SOCKET = CLIENT_SOCKET
@@ -82,7 +81,7 @@ class EventLoopApp:
 		while True:
 			try:
 				events = sel.select() # standby here
-				print("Current number of sockets that have things to read:" + str(len(events)))
+#				print("Current number of sockets that have things to read:" + str(len(events)))
 				for key, mask in events:
 					callback = key.data
 	#				print(callback.__name__)

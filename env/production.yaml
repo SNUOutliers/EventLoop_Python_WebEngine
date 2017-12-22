@@ -1,4 +1,4 @@
 # TODO : 아마존 인스턴스 생성 후 수정할 것
-host : 'ec2-13-125-65-86.ap-northeast-2.compute.amazonaws.com'
+host : 'ec2-52-79-135-109.ap-northeast-2.compute.amazonaws.com'
 port : 8080
 buffer_size : 8192
